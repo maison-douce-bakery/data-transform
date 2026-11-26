@@ -1,0 +1,9 @@
+name: data_platform
+version: "0.1.0"
+profile: data_platform
+require-dbt-version: [">=1.11.0", "<1.12.0"]
+model-paths: ["models"]
+
+models:
+  data_platform:
+    +materialized: view
