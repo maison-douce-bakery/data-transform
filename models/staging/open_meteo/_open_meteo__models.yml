@@ -1,0 +1,15 @@
+version: 2
+
+models:
+  - name: stg_open_meteo__hourly_weather
+    description: >
+      Hourly weather per location. Grain: one row per location_code and hour (observed_at), the latest revision by
+      fetched_at. Measurements are as delivered (null when the API had no value). Local time uses the business
+      timezone, not the location's own. Wind speed is km/h, the Open-Meteo default.
+    columns:
+      - name: observed_at
+        description: Start of the hour as an instant (timestamptz).
+      - name: weather_code
+        description: WMO weather interpretation code.
+      - name: fetched_at
+        description: When the API response of this revision was fetched.

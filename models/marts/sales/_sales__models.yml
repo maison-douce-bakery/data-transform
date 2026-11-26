@@ -118,6 +118,11 @@ models:
         description: Refunds on lines of the receipts sold on this date, whenever refunded.
       - name: refund_amount_by_refund_date
         description: Refunds made on this date, whenever the original sale happened.
+  - name: rpt_daily_sales_weather
+    description: >
+      Grain: same as rpt_daily_sales (one row per branch and business date with sold receipts or refunds), with the daily
+      weather of the branch's location (seed branch_locations). Weather columns are null when the branch has no
+      location or the day has no weather rows. Sales columns are a subset of rpt_daily_sales.
   - name: rpt_product_sales
     description: >
       Grain: one row per business date, branch, product and unit of measure with sold lines (is_sold definition,

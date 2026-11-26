@@ -10,7 +10,7 @@ Run locally: `pip install -r requirements.txt`, set the `DBT_*` variables (`DBT_
 
 | Layer | Schema | Materialization | Content |
 |---|---|---|---|
-| staging | `staging` | view | 1:1 with each `bakery` table: renames and casts only, no filters, no history |
+| staging | `staging` | view | 1:1 with each `bakery` table: renames and casts only, no filters, no history. `open_meteo` (schema `raw`, loaded by dlt) keeps only the latest revision of each hour |
 | intermediate | `intermediate` | view | building blocks, not exposed |
 | marts | `marts` | table | `dim_*`, `fct_*`, `rpt_*`, `bridge_*` |
 | snapshots | `snapshots` | snapshot | SCD2 history for customers, products and employees |
@@ -28,7 +28,7 @@ Run: `dbt deps`, then `dbt build` (seeds, staging, snapshots and marts in DAG or
 - SCD2 dimensions (`dim_customers`, `dim_products`, `dim_employees`) have `valid_from` (first version `-infinity`), `valid_to` (`9999-12-31` for the current version) and `is_current`. Join facts as of event time: `event_ts >= valid_from and event_ts < valid_to`.
 - Walk-in sales have a NULL `customer_sk` (no unknown-member row yet).
 - Product category is a column of `dim_products` (current state, history not tracked), so there is no `dim_product_categories`.
-- Folders: `models/staging/bakery`, `models/intermediate/<domain>`, `models/marts/dimensions`, `models/marts/{sales,inventory,procurement,finance}`.
+- Folders: `models/staging/{bakery,open_meteo}`, `models/intermediate/<domain>`, `models/marts/dimensions`, `models/marts/{sales,inventory,procurement,finance,weather}`.
 
 ## Conventions
 

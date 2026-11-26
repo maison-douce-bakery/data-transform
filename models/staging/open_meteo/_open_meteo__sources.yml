@@ -1,0 +1,8 @@
+version: 2
+
+sources:
+  - name: open_meteo
+    description: Hourly weather from the Open-Meteo archive API, loaded by dlt (append only, overlapping windows load as revisions).
+    schema: raw
+    tables:
+      - name: open_meteo_hourly_weather
