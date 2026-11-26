@@ -1,0 +1,8 @@
+snapshots:
+  - name: snap_products
+    description: SCD2 history of products, one row per version. Soft deletes become new versions.
+    relation: ref('stg_bakery__products')
+    config:
+      unique_key: product_id
+      strategy: timestamp
+      updated_at: updated_at

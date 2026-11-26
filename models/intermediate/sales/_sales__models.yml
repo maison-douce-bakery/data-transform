@@ -1,0 +1,54 @@
+version: 2
+
+models:
+  - name: int_sales__receipts
+    description: >
+      Grain: one row per non-deleted sale (receipt). Adds sold_at = coalesce(completed_at, opened_at), the business date
+      of sold_at, and the status flags is_completed (COMPLETED) and is_sold (COMPLETED, PARTIALLY_REFUNDED, REFUNDED).
+      Amounts are the receipt totals; tax_amount is kept separate from net_amount (gross - discount).
+    columns:
+      - name: sale_id
+        description: Sale primary key.
+      - name: sold_at
+        description: Event time used for the business date and as-of dimension joins.
+      - name: is_sold
+        description: True for COMPLETED, PARTIALLY_REFUNDED and REFUNDED receipts (original amounts, refunds apart).
+  - name: int_sales__lines_enriched
+    description: >
+      Grain: one row per non-deleted sale line of a non-deleted sale. Receipt attributes (branch, customer, cashier,
+      status flags, sold_at) are copied for slicing; receipt amounts are deliberately not repeated. gross_amount =
+      quantity * unit_price; discount_amount is the source line discount (promotion plus allocated points
+      redemption); net_amount is the source line_total.
+    columns:
+      - name: sale_item_id
+        description: Sale line primary key.
+      - name: net_amount
+        description: Line total after discount (source line_total).
+  - name: int_returns__completed_lines
+    description: >
+      Grain: one row per line of a COMPLETED, non-deleted return whose original sale line is live. Header refund totals
+      are not used, so a refund is never counted twice. is_sale_consistent checks that the return header and the
+      original line point to the same sale.
+    columns:
+      - name: return_item_id
+        description: Return line primary key.
+      - name: sale_item_id
+        description: Original sale line the return refers to.
+      - name: refund_amount
+        description: Amount refunded for this line.
+  - name: int_payments__by_sale
+    description: >
+      Grain: one row per sale that has non-deleted payments (receipt grain, so it cannot fan out when joined to
+      receipts). collected_amount counts CAPTURED and REFUNDED payments; FAILED and PENDING are never collected.
+    columns:
+      - name: sale_id
+        description: Sale primary key.
+      - name: collected_amount
+        description: Money received for the sale (CAPTURED plus REFUNDED payments).
+  - name: int_loyalty__running_balance
+    description: >
+      Grain: one row per non-deleted loyalty transaction, with the customer's balance after it, ordered by occurred_at
+      then id.
+    columns:
+      - name: balance_after
+        description: Sum of the customer's point movements up to and including this row.

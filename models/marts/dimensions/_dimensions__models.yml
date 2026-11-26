@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: >
+      SCD2 customer dimension, one row per version (snapshot snap_customers). The first version of each
+      customer starts at -infinity; the current version ends at the 9999-12-31 sentinel. Soft deletes are
+      versions with is_deleted = true. Join facts as of event time: event_ts >= valid_from and event_ts < valid_to.
+  - name: dim_products
+    description: >
+      SCD2 product dimension, one row per version (snapshot snap_products), with category and sell unit of
+      measure taken from the current state of the source. Category history is deliberately not tracked.
+      Join facts as of event time: event_ts >= valid_from and event_ts < valid_to.
+  - name: dim_employees
+    description: >
+      SCD2 employee dimension, one row per version (snapshot snap_employees).
+      Join facts as of event time: event_ts >= valid_from and event_ts < valid_to.
+  - name: dim_branches
+    description: Branch dimension (type 1), one row per branch. Soft-deleted rows are kept and flagged.
+  - name: dim_stock_items
+    description: Stock item dimension (type 1) with its base unit of measure. Soft-deleted rows are kept and flagged.
+  - name: dim_suppliers
+    description: Supplier dimension (type 1). Soft-deleted rows are kept and flagged.
+  - name: dim_units_of_measure
+    description: Unit of measure dimension (type 1). Soft-deleted rows are kept and flagged.
+  - name: dim_allergens
+    description: Allergen dimension (type 1). Soft-deleted rows are kept and flagged.
+  - name: dim_promotions
+    description: >
+      Promotion dimension (type 1). effective_from and effective_to are the promotion's own effective window from the
+      source, not row versions. Soft-deleted rows are kept and flagged.
+  - name: dim_date
+    description: >
+      Calendar from var calendar_start_date to calendar_end_date, one row per day, with Vietnamese public
+      holidays from the vietnam_holidays seed. date_type is HOLIDAY, WEEKEND or WEEKDAY, in that priority.

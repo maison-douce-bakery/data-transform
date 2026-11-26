@@ -1,0 +1,8 @@
+snapshots:
+  - name: snap_customers
+    description: SCD2 history of customers, one row per version. Soft deletes become new versions.
+    relation: ref('stg_bakery__customers')
+    config:
+      unique_key: customer_id
+      strategy: timestamp
+      updated_at: updated_at

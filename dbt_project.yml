@@ -3,7 +3,44 @@ version: "0.1.0"
 profile: data_platform
 require-dbt-version: [">=1.11.0", "<1.12.0"]
 model-paths: ["models"]
+seed-paths: ["seeds"]
+snapshot-paths: ["snapshots"]
+macro-paths: ["macros"]
+clean-targets: ["target", "dbt_packages"]
+
+vars:
+  business_timezone: Asia/Ho_Chi_Minh
+  currency_code: VND
+  calendar_start_date: "2026-01-01"
+  calendar_end_date: "2027-12-31"
 
 models:
   data_platform:
-    +materialized: view
+    staging:
+      +schema: staging
+      +materialized: view
+    intermediate:
+      +schema: intermediate
+      +materialized: view
+    marts:
+      +schema: marts
+      +materialized: table
+
+seeds:
+  data_platform:
+    +schema: staging
+    vietnam_holidays:
+      +column_types:
+        holiday_date: date
+        holiday_name: text
+
+snapshots:
+  data_platform:
+    +schema: snapshots
+    # Keep equal to the scd_end_of_time() macro
+    +dbt_valid_to_current: "'9999-12-31 00:00:00+00'::timestamptz"
+    +snapshot_meta_column_names:
+      dbt_valid_from: valid_from
+      dbt_valid_to: valid_to
+      dbt_scd_id: scd_id
+      dbt_updated_at: snapshot_updated_at

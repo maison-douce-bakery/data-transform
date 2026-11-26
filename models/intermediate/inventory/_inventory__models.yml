@@ -1,0 +1,61 @@
+version: 2
+
+models:
+  - name: int_inventory__movements_signed
+    description: >
+      Non-deleted stock movements with lot and item attributes and the business date. Grain: one row per stock
+      movement. signed_quantity (the source quantity_delta) already carries the sign (positive adds stock); expected_sign is what the movement
+      type implies and is_sign_consistent flags any mismatch. valuation_unit_cost is the lot unit cost, falling back
+      to the cost recorded on the movement; it is NULL when both are unknown (never 0).
+    columns:
+      - name: stock_movement_id
+        description: Primary key of the movement in the source ledger.
+      - name: signed_quantity
+        description: Signed quantity in uom_id. Positive adds stock, negative removes it.
+      - name: expected_sign
+        description: 1 for PURCHASE_RECEIPT, PRODUCTION_OUTPUT, RETURN_IN, ADJUSTMENT_IN and TRANSFER_IN; -1 for the others.
+      - name: is_sign_consistent
+        description: True when the sign of signed_quantity matches the movement type.
+      - name: business_date
+        description: Local business date of occurred_at (var business_timezone).
+      - name: valuation_unit_cost
+        description: Lot unit cost, else the movement's recorded unit cost, else NULL.
+      - name: cost_basis
+        description: LOT, MOVEMENT or NULL when the cost is unknown.
+
+  - name: int_production__batch_costs
+    description: >
+      Material input cost of each non-deleted production batch. Grain: one row per production batch. Cost is
+      sum(consumed quantity x lot unit cost) from production_consumptions; the matching negative stock movements
+      are the same event and are not added. Materials only, no labour or overhead, so it is not profit.
+    columns:
+      - name: production_batch_id
+        description: Primary key; one row per non-deleted batch, including batches without consumption rows.
+      - name: consumption_line_count
+        description: Number of non-deleted consumption lines of the batch.
+      - name: unknown_cost_line_count
+        description: Consumption lines whose lot unit cost is unknown.
+      - name: has_unknown_cost
+        description: True when the batch has no consumption lines or at least one line with an unknown cost.
+      - name: known_material_cost
+        description: Sum of the lines that have a cost. Only the full cost when has_unknown_cost is false.
+      - name: material_cost
+        description: Full material cost; NULL when has_unknown_cost.
+      - name: unit_cost
+        description: material_cost / actual output; NULL when the cost is incomplete or the actual output is missing or 0.
+
+  - name: int_production__recipe_periods
+    description: >
+      Resolved recipe validity. Grain: one row per product x contiguous period in which exactly one recipe version
+      applies. Periods are half-open [period_start, period_end) and never overlap within a product. Overlapping
+      versions are resolved by the latest effective start (ties: latest created); dates with no valid version have
+      no period. Helper for the effective recipe of a batch; it keeps the overlap rule in one place.
+    columns:
+      - name: product_id
+        description: Product the recipe belongs to.
+      - name: recipe_id
+        description: Recipe version that applies in the period.
+      - name: period_start
+        description: First business date of the period (inclusive).
+      - name: period_end
+        description: End of the period (exclusive); 9999-12-31 when open-ended.
