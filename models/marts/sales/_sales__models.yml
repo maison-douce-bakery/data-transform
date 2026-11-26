@@ -1,0 +1,144 @@
+version: 2
+
+models:
+  - name: fct_sales
+    description: >
+      Grain: one row per non-deleted sale (receipt). Customer, cashier and branch keys are resolved as of sold_at
+      (completion time, or opening time if never completed). Status is never filtered: use is_completed (COMPLETED) or
+      is_sold (COMPLETED, PARTIALLY_REFUNDED, REFUNDED) and sale_status. Amounts are original; refunds are on the
+      original-sale basis and come from completed return lines. customer_sk is null for walk-in sales.
+      net_after_refund_amount = total_amount - refund_amount (refunds exclude tax, which is 0 today).
+    columns:
+      - name: sale_id
+        description: Sale primary key.
+      - name: customer_sk
+        description: dim_customers version valid at sold_at. Null for sales without a customer.
+      - name: employee_sk
+        description: dim_employees version of the cashier valid at sold_at.
+      - name: date_sk
+        description: YYYYMMDD of the business date of sold_at; joins to dim_date.date_sk.
+      - name: gross_amount
+        description: Receipt subtotal, the sum of line gross amounts.
+      - name: discount_amount
+        description: Promotion discount plus points redemption.
+      - name: net_amount
+        description: gross_amount - discount_amount, before tax and refunds.
+      - name: total_amount
+        description: Amount payable, gross - discount + tax.
+      - name: collected_amount
+        description: Money received (CAPTURED and REFUNDED payments). FAILED and PENDING are excluded.
+      - name: refund_amount
+        description: Refunds of completed return lines belonging to this sale, whenever the return happened.
+  - name: fct_sale_items
+    description: >
+      Grain: one row per non-deleted sale line of a non-deleted sale. Customer and product versions are resolved as of
+      the sale time. returned_quantity and refund_amount come from completed return lines on this line (original-sale
+      basis). Quantities are in the line's own unit of measure, so do not add them across uom_id.
+    columns:
+      - name: sale_item_id
+        description: Sale line primary key.
+      - name: product_sk
+        description: dim_products version valid at sold_at.
+      - name: gross_amount
+        description: quantity * unit_price.
+      - name: discount_amount
+        description: Line discount, promotion plus allocated points redemption.
+      - name: net_amount
+        description: Line total after discount, before refunds.
+      - name: returned_quantity
+        description: Quantity returned through completed returns; never above quantity.
+      - name: refund_amount
+        description: Amount refunded for this line.
+  - name: fct_payments
+    description: >
+      Grain: one row per non-deleted payment of a non-deleted sale (several rows per receipt are possible). Dated at
+      paid_at, which is null for payments never paid (date_sk and business_date are then null). collected_amount is
+      payment_amount only when the status is CAPTURED or REFUNDED; FAILED and PENDING give 0.
+    columns:
+      - name: payment_id
+        description: Payment primary key.
+      - name: payment_amount
+        description: Positive amount of the attempt, whatever its status.
+      - name: collected_amount
+        description: Money received for this payment.
+  - name: fct_returns
+    description: >
+      Grain: one row per line of a COMPLETED, non-deleted return, dated at the return time (refund-date basis). Branch,
+      product and unit come from the original sale line; customer, product and processing employee versions are
+      resolved as of returned_at. Header refund totals are not used.
+    columns:
+      - name: return_item_id
+        description: Return line primary key.
+      - name: sale_item_id
+        description: Original sale line.
+      - name: sale_date_sk
+        description: YYYYMMDD of sale_date, the business date of the original sale (dim_date).
+      - name: date_sk
+        description: YYYYMMDD of the return business date.
+      - name: returned_quantity
+        description: Quantity returned, in the original line's unit of measure.
+      - name: refund_amount
+        description: Amount refunded for this line.
+  - name: fct_loyalty_transactions
+    description: >
+      Grain: one row per non-deleted loyalty transaction. points_balance_after is the customer's running balance
+      (EARN +, REDEEM -, ADJUST +/-, EXPIRE -). Points, not money.
+    columns:
+      - name: loyalty_transaction_id
+        description: Loyalty transaction primary key.
+      - name: points_delta
+        description: Signed point movement.
+      - name: points_balance_after
+        description: Balance after this movement.
+  - name: fct_sale_promotions
+    description: >
+      Grain: one row per non-deleted promotion applied to a non-deleted sale. discount_amount is what was actually
+      given, not the configured value. Points redemption has no row here, so the sum per sale can be lower than
+      fct_sales.discount_amount.
+    columns:
+      - name: sale_promotion_id
+        description: Applied promotion primary key.
+      - name: discount_amount
+        description: Discount actually applied.
+  - name: rpt_daily_sales
+    description: >
+      Grain: one row per branch and business date that has sold receipts or refunds. Uses the is_sold definition
+      (COMPLETED, PARTIALLY_REFUNDED, REFUNDED) with original gross amounts; refunds are separate. Refunds appear on
+      both bases: refund_amount_by_sale_date (refunds of the receipts sold that day) and refund_amount_by_refund_date
+      (refunds made that day). order_count is the number of receipts and average_order_value = revenue_amount / order_count.
+      Units are not reported here because quantities of different units of measure are never added; use rpt_product_sales.
+    columns:
+      - name: revenue_amount
+        description: Sum of receipt total_amount.
+      - name: net_amount
+        description: Sum of gross - discount, before tax.
+      - name: average_order_value
+        description: revenue_amount / order_count, null when there are no orders.
+      - name: refund_amount_by_sale_date
+        description: Refunds on lines of the receipts sold on this date, whenever refunded.
+      - name: refund_amount_by_refund_date
+        description: Refunds made on this date, whenever the original sale happened.
+  - name: rpt_product_sales
+    description: >
+      Grain: one row per business date, branch, product and unit of measure with sold lines (is_sold definition,
+      original sale-date basis). Units of different measures are never added. Returned quantity and refunds are those
+      of the original lines. Product attributes are the current version.
+    columns:
+      - name: sold_quantity
+        description: Sum of quantity in uom_code.
+      - name: net_quantity
+        description: sold_quantity - returned_quantity.
+      - name: net_amount
+        description: Sum of line totals after discount, before refunds.
+  - name: rpt_customer_360
+    description: >
+      Grain: one row per current, non-deleted customer, including customers with no orders (counts and amounts 0,
+      dates null). Orders use the is_sold definition matched by customer_id across versions; revenue_amount is original and
+      refunds are separate. loyalty_points_balance is in points.
+    columns:
+      - name: customer_id
+        description: Customer business key.
+      - name: revenue_amount
+        description: Sum of total_amount of the customer's sold receipts.
+      - name: loyalty_points_balance
+        description: Sum of all non-deleted point movements.

@@ -1,0 +1,139 @@
+version: 2
+
+models:
+  - name: stg_bakery__allergens
+    description: >
+      Allergen reference list (one row per allergen). Soft-deleted rows are kept; downstream models must filter is_deleted.
+      One row per source row, 1:1 with bakery.allergens.
+  - name: stg_bakery__branches
+    description: >
+      Bakery branches (shops). Soft-deleted rows are kept; downstream models must filter is_deleted.
+      One row per source row, 1:1 with bakery.branches.
+  - name: stg_bakery__cash_movements
+    description: >
+      Cash drawer movements within a shift (sales receipts, pay-ins, pay-outs). Soft-deleted rows are kept; downstream models must filter is_deleted.
+      One row per source row, 1:1 with bakery.cash_movements.
+  - name: stg_bakery__customers
+    description: >
+      Customer profiles, including loyalty members. Soft-deleted rows are kept; downstream models must filter is_deleted.
+      One row per source row, 1:1 with bakery.customers.
+  - name: stg_bakery__employees
+    description: >
+      Employees with their role and branch. Soft-deleted rows are kept; downstream models must filter is_deleted.
+      One row per source row, 1:1 with bakery.employees.
+  - name: stg_bakery__goods_receipt_items
+    description: >
+      Lines of a goods receipt: stock item, lot, quantity and actual unit cost. Soft-deleted rows are kept; downstream models must filter is_deleted.
+      One row per source row, 1:1 with bakery.goods_receipt_items.
+  - name: stg_bakery__goods_receipts
+    description: >
+      Goods receipt headers: deliveries received from suppliers. Soft-deleted rows are kept; downstream models must filter is_deleted.
+      One row per source row, 1:1 with bakery.goods_receipts.
+  - name: stg_bakery__inventory_lots
+    description: >
+      Inventory lots of stock items with manufacturing and expiry dates and unit cost. Soft-deleted rows are kept; downstream models must filter is_deleted.
+      One row per source row, 1:1 with bakery.inventory_lots.
+  - name: stg_bakery__loyalty_transactions
+    description: >
+      Loyalty points ledger: earned, redeemed or adjusted points per customer. Soft-deleted rows are kept; downstream models must filter is_deleted.
+      One row per source row, 1:1 with bakery.loyalty_transactions.
+  - name: stg_bakery__payments
+    description: >
+      Payments taken for sales, one row per payment attempt or tender. Soft-deleted rows are kept; downstream models must filter is_deleted.
+      One row per source row, 1:1 with bakery.payments.
+  - name: stg_bakery__product_allergens
+    description: >
+      Allergens declared for each product (link table). Soft-deleted rows are kept; downstream models must filter is_deleted.
+      One row per source row, 1:1 with bakery.product_allergens.
+  - name: stg_bakery__product_categories
+    description: >
+      Product categories with an optional parent category. Soft-deleted rows are kept; downstream models must filter is_deleted.
+      One row per source row, 1:1 with bakery.product_categories.
+  - name: stg_bakery__production_batches
+    description: >
+      Production batches of finished products, planned and produced quantity. Soft-deleted rows are kept; downstream models must filter is_deleted.
+      One row per source row, 1:1 with bakery.production_batches.
+  - name: stg_bakery__production_consumptions
+    description: >
+      Stock item quantities consumed by each production batch. Soft-deleted rows are kept; downstream models must filter is_deleted.
+      One row per source row, 1:1 with bakery.production_consumptions.
+  - name: stg_bakery__products
+    description: >
+      Sellable products with category, sell unit and list price. Soft-deleted rows are kept; downstream models must filter is_deleted.
+      One row per source row, 1:1 with bakery.products.
+  - name: stg_bakery__promotion_products
+    description: >
+      Products a promotion applies to (link table). Soft-deleted rows are kept; downstream models must filter is_deleted.
+      One row per source row, 1:1 with bakery.promotion_products.
+  - name: stg_bakery__promotions
+    description: >
+      Promotion definitions with validity window and discount value. Soft-deleted rows are kept; downstream models must filter is_deleted.
+      One row per source row, 1:1 with bakery.promotions.
+  - name: stg_bakery__purchase_order_items
+    description: >
+      Lines of a purchase order: stock item, ordered quantity and expected unit cost. Soft-deleted rows are kept; downstream models must filter is_deleted.
+      One row per source row, 1:1 with bakery.purchase_order_items.
+  - name: stg_bakery__purchase_orders
+    description: >
+      Purchase order headers sent to suppliers. Soft-deleted rows are kept; downstream models must filter is_deleted.
+      One row per source row, 1:1 with bakery.purchase_orders.
+  - name: stg_bakery__recipe_items
+    description: >
+      Ingredients of a recipe with quantities. Soft-deleted rows are kept; downstream models must filter is_deleted.
+      One row per source row, 1:1 with bakery.recipe_items.
+  - name: stg_bakery__recipes
+    description: >
+      Recipe versions of a product with yield and effective dates. Soft-deleted rows are kept; downstream models must filter is_deleted.
+      One row per source row, 1:1 with bakery.recipes.
+  - name: stg_bakery__return_items
+    description: >
+      Returned sale lines with quantity, refund amount and restock flag. Soft-deleted rows are kept; downstream models must filter is_deleted.
+      One row per source row, 1:1 with bakery.return_items.
+  - name: stg_bakery__returns
+    description: >
+      Return headers: customer returns of a sale. Soft-deleted rows are kept; downstream models must filter is_deleted.
+      One row per source row, 1:1 with bakery.returns.
+  - name: stg_bakery__sale_items
+    description: >
+      Sale lines: product, quantity, unit price, discount and line total. Soft-deleted rows are kept; downstream models must filter is_deleted.
+      One row per source row, 1:1 with bakery.sale_items.
+  - name: stg_bakery__sale_promotions
+    description: >
+      Promotions applied to a sale, with the discount they gave. Soft-deleted rows are kept; downstream models must filter is_deleted.
+      One row per source row, 1:1 with bakery.sale_promotions.
+  - name: stg_bakery__sales
+    description: >
+      Sale headers (receipts): branch, customer, cashier, channel, status and totals. Soft-deleted rows are kept; downstream models must filter is_deleted.
+      One row per source row, 1:1 with bakery.sales.
+  - name: stg_bakery__shifts
+    description: >
+      Cashier shifts with opening and counted cash. Soft-deleted rows are kept; downstream models must filter is_deleted.
+      One row per source row, 1:1 with bakery.shifts.
+  - name: stg_bakery__simulation_runs
+    description: >
+      Run log of the operations simulator. It has no audit columns, so no is_deleted.
+      One row per source row, 1:1 with bakery.simulation_runs.
+  - name: stg_bakery__stock_items
+    description: >
+      Stock items: ingredients, packaging and other inventory items. Soft-deleted rows are kept; downstream models must filter is_deleted.
+      One row per source row, 1:1 with bakery.stock_items.
+  - name: stg_bakery__stock_movements
+    description: >
+      Inventory ledger: every stock increase or decrease with its source document. Soft-deleted rows are kept; downstream models must filter is_deleted.
+      One row per source row, 1:1 with bakery.stock_movements.
+  - name: stg_bakery__supplier_products
+    description: >
+      Items each supplier sells, with supplier SKU, pack size and last known cost. Soft-deleted rows are kept; downstream models must filter is_deleted.
+      One row per source row, 1:1 with bakery.supplier_products.
+  - name: stg_bakery__suppliers
+    description: >
+      Suppliers. Soft-deleted rows are kept; downstream models must filter is_deleted.
+      One row per source row, 1:1 with bakery.suppliers.
+  - name: stg_bakery__units_of_measure
+    description: >
+      Units of measure with their dimension (mass, volume, count). Soft-deleted rows are kept; downstream models must filter is_deleted.
+      One row per source row, 1:1 with bakery.units_of_measure.
+  - name: stg_bakery__waste_records
+    description: >
+      Stock written off as waste with a reason code. Soft-deleted rows are kept; downstream models must filter is_deleted.
+      One row per source row, 1:1 with bakery.waste_records.

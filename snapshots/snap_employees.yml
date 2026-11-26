@@ -1,0 +1,8 @@
+snapshots:
+  - name: snap_employees
+    description: SCD2 history of employees, one row per version. Soft deletes become new versions.
+    relation: ref('stg_bakery__employees')
+    config:
+      unique_key: employee_id
+      strategy: timestamp
+      updated_at: updated_at

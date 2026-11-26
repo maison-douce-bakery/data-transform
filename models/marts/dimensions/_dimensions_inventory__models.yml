@@ -1,0 +1,63 @@
+version: 2
+
+models:
+  - name: dim_inventory_lots
+    description: >
+      Inventory lot dimension (type 1). Grain: one row per inventory lot (soft-deleted rows kept and flagged).
+      Dates are business dates as stored. Whether a lot is expired depends on the report date, so expiry flags are
+      computed in the reports.
+    columns:
+      - name: inventory_lot_sk
+        description: Surrogate key, hash of inventory_lot_id.
+      - name: inventory_lot_id
+        description: Business key of the lot.
+      - name: stock_item_sk
+        description: Key of the stock item the lot belongs to (dim_stock_items).
+      - name: expiry_date
+        description: Last day the lot is usable; it is expired from the next day. NULL means no expiry recorded.
+      - name: unit_cost
+        description: Lot unit cost; NULL when unknown (never 0).
+      - name: has_unknown_cost
+        description: True when unit_cost is NULL.
+      - name: lot_source
+        description: GOODS_RECEIPT (received from a supplier), PRODUCTION (has a production output movement) or OTHER.
+
+  - name: dim_recipes
+    description: >
+      Recipe version dimension (type 1). Grain: one row per recipe version of a product. effective_from and effective_to are
+      the declared effective dates, half-open [effective_from, effective_to), effective_to 9999-12-31 when open-ended. Overlapping
+      versions are flagged here and resolved by the latest effective start in int_production__recipe_periods.
+    columns:
+      - name: recipe_sk
+        description: Surrogate key, hash of recipe_id.
+      - name: recipe_id
+        description: Business key of the recipe version.
+      - name: product_id
+        description: Product the version belongs to (version numbers only mean something within a product).
+      - name: standard_output_quantity
+        description: Output of one standard batch, in standard_output_uom_id.
+      - name: effective_from
+        description: First business date the version is effective (inclusive).
+      - name: effective_to
+        description: End of the declared window (exclusive); never NULL.
+      - name: has_overlap
+        description: True when the declared window overlaps another non-deleted version of the same product.
+
+  - name: bridge_recipe_items
+    description: >
+      Recipe component bridge. Grain: one row per recipe x stock item (non-deleted rows of non-deleted recipes).
+      Quantities are per standard batch in the component's own unit; quantity_per_output_unit scales to a requested
+      output (component quantity x requested output / standard batch output).
+    columns:
+      - name: recipe_item_sk
+        description: Surrogate key, hash of recipe_item_id.
+      - name: recipe_sk
+        description: Key of the recipe version (dim_recipes).
+      - name: stock_item_sk
+        description: Key of the component stock item (dim_stock_items).
+      - name: quantity_per_standard_batch
+        description: Component quantity for one standard batch, in uom_id.
+      - name: quantity_per_output_unit
+        description: quantity_per_standard_batch / standard_output_quantity.
+      - name: is_optional
+        description: True when the component is optional.

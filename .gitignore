@@ -3,3 +3,4 @@ logs/
 dbt_packages/
 .venv/
 __pycache__/
+.user.yml

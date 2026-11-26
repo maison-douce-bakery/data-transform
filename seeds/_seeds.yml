@@ -1,0 +1,5 @@
+version: 2
+
+seeds:
+  - name: vietnam_holidays
+    description: Vietnamese public holidays, one row per day off, including compensatory days.

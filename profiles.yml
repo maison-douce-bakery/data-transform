@@ -9,5 +9,5 @@ data_platform:
       password: "{{ env_var('DBT_PASSWORD') }}"
       dbname: "{{ env_var('DBT_DBNAME') }}"
       schema: staging
-      sslmode: require
+      sslmode: "{{ env_var('DBT_SSLMODE', 'require') }}"
       threads: 1

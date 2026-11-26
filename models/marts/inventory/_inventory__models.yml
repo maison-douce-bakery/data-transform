@@ -1,0 +1,196 @@
+version: 2
+
+models:
+  - name: fct_stock_movements
+    description: >
+      Atomic inventory ledger. Grain: one row per non-deleted stock movement. signed_quantity is signed (positive
+      adds stock) and on-hand at a point in time is the sum of signed_quantity up to it, per branch, item and lot, in
+      one unit. signed_value = signed_quantity x unit_cost and is NULL when the cost is unknown. Production consumption
+      rows are the same events as production_consumptions (do not add both).
+    columns:
+      - name: stock_movement_id
+        description: Primary key (degenerate dimension, source movement id).
+      - name: branch_sk
+        description: Key of the branch (dim_branches).
+      - name: stock_item_sk
+        description: Key of the stock item (dim_stock_items).
+      - name: inventory_lot_sk
+        description: Key of the lot (dim_inventory_lots); NULL for lot-less movements.
+      - name: uom_sk
+        description: Unit of measure of signed_quantity (dim_units_of_measure).
+      - name: date_sk
+        description: YYYYMMDD of the business date (dim_date).
+      - name: employee_sk
+        description: Employee version valid at occurred_at (dim_employees).
+      - name: movement_type
+        description: PURCHASE_RECEIPT, PRODUCTION_CONSUMPTION, PRODUCTION_OUTPUT, SALE, RETURN_IN, WASTE, ADJUSTMENT_IN/OUT or TRANSFER_IN/OUT.
+      - name: signed_quantity
+        description: Signed quantity in uom_sk.
+      - name: source_type
+        description: Source document type (for example GOODS_RECEIPT, PRODUCTION_BATCH, SALE, WASTE_RECORD).
+      - name: source_id
+        description: Id of the source document.
+      - name: is_sign_consistent
+        description: True when the sign of signed_quantity matches the movement type.
+      - name: unit_cost
+        description: Valuation unit cost, the lot cost else the cost recorded on the movement; NULL when unknown.
+      - name: signed_value
+        description: Signed value, signed_quantity x unit_cost; NULL when the cost is unknown.
+      - name: has_unknown_cost
+        description: True when no cost is known; the value is then NULL, not 0.
+
+  - name: fct_production_batches
+    description: >
+      Production batches. Grain: one row per non-deleted production batch. Planned and actual quantity are in the
+      batch unit; a missing actual is NULL, not 0. Only COMPLETED batches have output_quantity. duration_minutes needs
+      both timestamps. Cost is material input only (consumption x lot unit cost): not labour or overhead, not profit.
+      Product and employee keys are as of the batch start (else completion, else creation).
+    columns:
+      - name: production_batch_id
+        description: Primary key (source batch id).
+      - name: batch_number
+        description: Business batch number.
+      - name: branch_sk
+        description: Key of the branch (dim_branches).
+      - name: product_sk
+        description: Product version valid at the batch event time (dim_products).
+      - name: recipe_sk
+        description: Recipe version recorded on the batch (dim_recipes); NULL when none.
+      - name: effective_recipe_sk
+        description: Recipe version the overlap rule picks for the batch date (latest effective start wins).
+      - name: uses_effective_recipe
+        description: True when the recorded recipe is the effective one; NULL when no version is effective on the batch date.
+      - name: uom_sk
+        description: Unit of measure of all quantities of the row (dim_units_of_measure).
+      - name: date_sk
+        description: YYYYMMDD of business_date (dim_date).
+      - name: business_date
+        description: Business date of the batch start, else completion, else creation.
+      - name: status
+        description: PLANNED, IN_PROGRESS, COMPLETED or CANCELLED.
+      - name: duration_minutes
+        description: Minutes from started_at to completed_at; NULL unless both are valid.
+      - name: planned_quantity
+        description: Target quantity; may be NULL.
+      - name: actual_quantity
+        description: Recorded produced quantity as stored; may be NULL (not 0).
+      - name: output_quantity
+        description: actual_quantity for COMPLETED batches, else NULL.
+      - name: is_missing_actual
+        description: True for a COMPLETED batch without an actual quantity.
+      - name: is_attainment_comparable
+        description: True when the batch is COMPLETED with actual and planned known; attainment sums use only these.
+      - name: attainment_ratio
+        description: output_quantity / planned_quantity for comparable batches; NULL otherwise.
+      - name: known_material_cost
+        description: Sum of the consumption lines that have a cost; the full cost only when has_unknown_cost is false.
+      - name: material_cost
+        description: Full material cost; NULL when any line cost is unknown or there are no consumption lines.
+      - name: unit_cost
+        description: material_cost / actual output for COMPLETED batches; NULL otherwise.
+      - name: has_unknown_cost
+        description: True when the batch cost is incomplete or has no consumption lines.
+
+  - name: fct_waste_records
+    description: >
+      Waste records. Grain: one row per non-deleted waste record. quantity is positive, in the stock item unit; the
+      matching stock movement is negative. waste_value = quantity x lot unit cost, NULL when the cost is unknown.
+      Record count, quantity and value are different measures.
+    columns:
+      - name: waste_record_id
+        description: Primary key (source waste record id).
+      - name: branch_sk
+        description: Key of the branch (dim_branches).
+      - name: stock_item_sk
+        description: Key of the stock item (dim_stock_items).
+      - name: inventory_lot_sk
+        description: Key of the lot (dim_inventory_lots); NULL when the record has no lot.
+      - name: uom_sk
+        description: Unit of measure of quantity (dim_units_of_measure).
+      - name: date_sk
+        description: YYYYMMDD of the business date of recorded_at (dim_date).
+      - name: reason_code
+        description: EXPIRED, DAMAGED, QUALITY, UNSOLD, PRODUCTION_LOSS or OTHER.
+      - name: quantity
+        description: Positive wasted quantity in uom_sk.
+      - name: waste_value
+        description: quantity x lot unit cost; NULL when the cost is unknown (not 0).
+      - name: has_stock_movement
+        description: True when a WASTE stock movement points at the record.
+      - name: is_movement_quantity_matching
+        description: True when the negated movement quantity equals the record quantity.
+
+  - name: rpt_inventory_position
+    description: >
+      Stock position as of the build time. Grain: one row per branch x stock item x lot (lot NULL for lot-less stock),
+      as_of_date being the business date of now(). Book quantity sums all signed movements up to that date; available
+      quantity excludes expired lots (usable on the expiry date, expired from the next day, no expiry means never
+      expired). Lots with a zero net balance are omitted and lots without movements never appear. Value uses the lot
+      unit cost and is NULL when the cost is unknown.
+    columns:
+      - name: as_of_date
+        description: Business date of the build time.
+      - name: branch_sk
+        description: Key of the branch (dim_branches).
+      - name: stock_item_sk
+        description: Key of the stock item (dim_stock_items).
+      - name: inventory_lot_sk
+        description: Key of the lot (dim_inventory_lots); NULL for lot-less stock.
+      - name: uom_sk
+        description: Unit of all quantities in the row; NULL when has_mixed_uom.
+      - name: expiry_date
+        description: Last usable day of the lot; NULL when none recorded.
+      - name: days_to_expiry
+        description: expiry_date - as_of_date; negative when expired.
+      - name: is_expired
+        description: True when as_of_date is after expiry_date.
+      - name: book_quantity
+        description: Sum of signed movements up to as_of_date; NULL when has_mixed_uom.
+      - name: available_quantity
+        description: book_quantity for non-expired lots, 0 for expired lots.
+      - name: expired_quantity
+        description: Positive book quantity of an expired lot, else 0.
+      - name: unit_cost
+        description: Lot unit cost; NULL when unknown.
+      - name: book_value
+        description: book_quantity x unit_cost; NULL when the cost is unknown.
+      - name: available_value
+        description: Value of the available quantity; NULL when the cost is unknown and the lot is not expired.
+      - name: expired_value
+        description: Value of the expired quantity; NULL when the cost is unknown and the lot is expired.
+      - name: has_unknown_cost
+        description: True when the lot cost is unknown or there is no lot.
+      - name: is_negative_balance
+        description: True when book_quantity is below 0 (an anomaly worth checking).
+      - name: has_mixed_uom
+        description: True when the key had movements in more than one unit; quantities are then NULL.
+
+  - name: rpt_daily_operations
+    description: >
+      Daily operations. Grain: one row per business_date x branch x unit of measure, only where something happened.
+      Quantities are never added across units. Production is in the batch unit and dated by the batch start; waste
+      and movement totals are in the stock item unit and add all items of that unit. waste_share_of_production
+      divides waste of produced items by production output of the same unit.
+    columns:
+      - name: date_sk
+        description: YYYYMMDD of business_date (dim_date).
+      - name: branch_sk
+        description: Key of the branch (dim_branches).
+      - name: uom_sk
+        description: Unit of measure of every quantity in the row (dim_units_of_measure).
+      - name: planned_quantity
+        description: Planned quantity of the non-cancelled batches.
+      - name: output_quantity
+        description: Actual quantity of COMPLETED batches (missing actuals are not counted as 0).
+      - name: attainment_ratio
+        description: attainment_output_quantity / attainment_planned_quantity, over the same comparable batches.
+      - name: waste_quantity
+        description: Sum of waste record quantities (all items) in this unit.
+      - name: produced_item_waste_quantity
+        description: Waste quantity of items that are the output of a production batch, comparable with production output.
+      - name: known_waste_value
+        description: Sum of waste values with a known cost; see unknown_cost_waste_record_count for the rest.
+      - name: waste_share_of_production
+        description: produced_item_waste_quantity / output_quantity, same unit; NULL without output.
+      - name: net_movement_quantity
+        description: Sum of all signed stock movements in this unit.

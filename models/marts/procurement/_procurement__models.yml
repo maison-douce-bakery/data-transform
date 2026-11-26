@@ -1,0 +1,110 @@
+version: 2
+
+models:
+  - name: fct_purchase_order_lines
+    description: >
+      Grain: one row per non-deleted purchase order line of a non-deleted purchase order. A PO does not add stock;
+      only receipt quantities count. Received quantity is summed only over receipt lines in the ordered unit.
+      Dimension keys are type 1 (supplier, branch, stock item, unit).
+    columns:
+      - name: purchase_order_item_id
+        description: PO line business key (one row per value).
+      - name: purchase_order_id
+        description: Parent purchase order.
+      - name: supplier_sk
+        description: Key to dim_suppliers.
+      - name: branch_sk
+        description: Key to dim_branches; NULL when the PO has no branch.
+      - name: stock_item_sk
+        description: Key to dim_stock_items.
+      - name: uom_sk
+        description: Key to dim_units_of_measure; the ordered unit.
+      - name: date_sk
+        description: YYYYMMDD of business_date (dim_date).
+      - name: business_date
+        description: Business date of ordered_at (the order date).
+      - name: expected_date_sk
+        description: YYYYMMDD of expected_date (dim_date); NULL without an expected date.
+      - name: ordered_quantity
+        description: Quantity ordered, in the ordered unit.
+      - name: expected_unit_cost
+        description: Expected price per ordered unit; NULL when unknown (not 0).
+      - name: expected_line_value
+        description: Ordered quantity x expected unit cost; NULL when the price is unknown.
+      - name: received_quantity_in_ordered_uom
+        description: Sum of receipt-line quantities in the ordered unit (0 when none). Receipt lines in other units are not added.
+      - name: units_comparable
+        description: False when at least one receipt line is in a unit other than the ordered unit; then no difference is computed.
+      - name: open_quantity
+        description: Ordered minus received in the ordered unit, floored at 0. NULL when units are not comparable or the PO is cancelled.
+      - name: over_received_quantity
+        description: Received minus ordered, floored at 0. NULL when units are not comparable.
+      - name: received_value
+        description: Sum of received quantity x actual unit cost over all receipt lines of the PO line; NULL when no priced receipt exists.
+
+  - name: fct_goods_receipt_lines
+    description: >
+      Grain: one row per non-deleted goods receipt line of a non-deleted receipt. Receipts may exist without a PO
+      (is_linked_to_po = false). The supplier invoice number and the internal receipt number are different documents.
+    columns:
+      - name: goods_receipt_item_id
+        description: Receipt line business key (one row per value).
+      - name: goods_receipt_id
+        description: Parent receipt.
+      - name: receipt_number
+        description: Internal receipt number.
+      - name: supplier_invoice_number
+        description: Supplier's own invoice number; may be NULL.
+      - name: supplier_sk
+        description: Key to dim_suppliers.
+      - name: date_sk
+        description: YYYYMMDD of business_date (dim_date).
+      - name: business_date
+        description: Business date of received_at.
+      - name: received_by_employee_sk
+        description: Employee version valid at received_at (dim_employees).
+      - name: inventory_lot_id
+        description: Lot created by the line; NULL when the line has no lot.
+      - name: received_quantity
+        description: Quantity actually received, in the receipt line's unit.
+      - name: actual_unit_cost
+        description: Actual price per unit; NULL when unknown.
+      - name: actual_line_value
+        description: Received quantity x actual unit cost; NULL when the price is unknown.
+      - name: purchase_order_item_id
+        description: Linked PO line; NULL when the line is not tied to a PO line.
+      - name: units_match_po_line
+        description: Whether the receipt unit equals the ordered unit; NULL when no PO line is linked.
+      - name: unit_cost_variance_amount
+        description: Actual minus expected unit cost, only when the units match and both prices are known.
+
+  - name: rpt_procurement_status
+    description: >
+      Grain: one row per non-deleted PO line (same rows as fct_purchase_order_lines): ordered vs received,
+      receipt status, over/short and timing. Over/short is computed only when units_comparable. days_* and is_overdue
+      are relative to as_of_date (the business date of the build); they need expected_date, which auto-generated POs may lack.
+    columns:
+      - name: purchase_order_item_id
+        description: PO line business key (one row per value).
+      - name: date_sk
+        description: YYYYMMDD of business_date (the order date, dim_date).
+      - name: business_date
+        description: Business date of the order (ordered_at).
+      - name: receipt_status
+        description: NOT_RECEIVED, PARTIALLY_RECEIVED, FULLY_RECEIVED, OVER_RECEIVED, or UNITS_NOT_COMPARABLE (a receipt line is in another unit).
+      - name: over_short_quantity
+        description: Received minus ordered in the ordered unit (positive over, negative short); NULL when not comparable or cancelled.
+      - name: open_quantity
+        description: Quantity still awaited in the ordered unit; NULL when not comparable or cancelled.
+      - name: is_open
+        description: PO is SENT or PARTIALLY_RECEIVED and the line is not complete.
+      - name: days_open
+        description: Days from order date to as_of_date for open lines.
+      - name: is_overdue
+        description: Open line whose expected date is before as_of_date; false when there is no expected date.
+      - name: days_overdue
+        description: Days past the expected date for open lines; NULL without an expected date.
+      - name: days_late_at_completion
+        description: Last receipt date minus expected date for completed lines (negative = early).
+      - name: is_status_inconsistent
+        description: PO status contradicts the receipts of the line (RECEIVED but not complete, or DRAFT/CANCELLED with receipts).

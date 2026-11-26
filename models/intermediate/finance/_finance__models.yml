@@ -1,0 +1,19 @@
+version: 2
+
+models:
+  - name: int_finance__cash_movements
+    description: >
+      Grain: one row per non-deleted cash movement of a non-deleted shift, with direction and signed amount derived
+      from movement_type. Single place for the direction rule, shared by the finance marts.
+    columns:
+      - name: cash_movement_id
+        description: Movement business key (one row per value).
+      - name: signed_amount
+        description: Plus amount for IN types, minus amount for OUT types.
+  - name: int_finance__shift_cash
+    description: >
+      Grain: one row per shift that has at least one live cash movement; cash in and out by movement type.
+      The opening float is not included (it is a column of the shift).
+    columns:
+      - name: shift_id
+        description: Shift business key (one row per value).

@@ -1,0 +1,15 @@
+version: 2
+
+models:
+  - name: int_procurement__receipt_totals_by_po_line
+    description: >
+      Grain: one row per PO line that has at least one non-deleted receipt line. Receipt lines are rolled up here,
+      before joining to the PO line, so a line received in several deliveries or lots cannot fan out.
+      Only quantities in the ordered unit are summed; receipt lines in other units are counted separately.
+    columns:
+      - name: purchase_order_item_id
+        description: PO line business key (one row per value).
+      - name: received_quantity_in_ordered_uom
+        description: Sum of receipt-line quantities in the ordered unit.
+      - name: other_uom_receipt_line_count
+        description: Receipt lines in a unit other than the ordered unit (their quantity is not added).

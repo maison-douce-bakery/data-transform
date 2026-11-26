@@ -1,0 +1,41 @@
+version: 2
+
+sources:
+  - name: bakery
+    description: Operational database of the bakery, written by commerce-api. Read-only for dbt.
+    schema: bakery
+    tables:
+      - name: allergens
+      - name: branches
+      - name: cash_movements
+      - name: customers
+      - name: employees
+      - name: goods_receipt_items
+      - name: goods_receipts
+      - name: inventory_lots
+      - name: loyalty_transactions
+      - name: payments
+      - name: product_allergens
+      - name: product_categories
+      - name: production_batches
+      - name: production_consumptions
+      - name: products
+      - name: promotion_products
+      - name: promotions
+      - name: purchase_order_items
+      - name: purchase_orders
+      - name: recipe_items
+      - name: recipes
+      - name: return_items
+      - name: returns
+      - name: sale_items
+      - name: sale_promotions
+      - name: sales
+      - name: shifts
+      - name: simulation_runs
+      - name: stock_items
+      - name: stock_movements
+      - name: supplier_products
+      - name: suppliers
+      - name: units_of_measure
+      - name: waste_records
