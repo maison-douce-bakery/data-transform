@@ -1,0 +1,25 @@
+version: 2
+
+models:
+  - name: fct_weather_hourly
+    description: >
+      Grain: one row per location_code and hour (observed_at). Hours are dated in the business timezone
+      (date_sk, business_date, business_hour). weather_category groups the WMO weather_code (clear, cloudy, fog,
+      drizzle, rain, snow, thunderstorm, unknown, the last also for a null code). is_raining is precipitation_mm > 0.
+    columns:
+      - name: date_sk
+        description: YYYYMMDD of the business date of the hour; joins to dim_date.date_sk.
+      - name: weather_category
+        description: Group of weather_code.
+      - name: is_raining
+        description: True when precipitation_mm is above 0; false when it is 0 or null.
+  - name: rpt_daily_weather
+    description: >
+      Grain: one row per location_code and business date. Aggregates the hours present in fct_weather_hourly;
+      hour_count shows how many (24 for a full day). dominant_weather_category is the category with most hours
+      (ties go to the first alphabetically).
+    columns:
+      - name: total_precipitation_mm
+        description: Sum of hourly precipitation.
+      - name: rainy_hour_count
+        description: Hours with is_raining.

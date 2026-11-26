@@ -33,6 +33,10 @@ seeds:
       +column_types:
         holiday_date: date
         holiday_name: text
+    branch_locations:
+      +column_types:
+        branch_code: text
+        location_code: text
 
 snapshots:
   data_platform:

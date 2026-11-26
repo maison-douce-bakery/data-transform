@@ -3,3 +3,5 @@ version: 2
 seeds:
   - name: vietnam_holidays
     description: Vietnamese public holidays, one row per day off, including compensatory days.
+  - name: branch_locations
+    description: Weather location of each branch (branch_code to the location_code loaded from Open-Meteo). One row per branch.
