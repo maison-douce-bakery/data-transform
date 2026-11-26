@@ -1,0 +1,7 @@
+version: 2
+
+sources:
+  - name: bakery
+    schema: bakery
+    tables:
+      - name: products
