@@ -3,7 +3,38 @@
 -- Today the source sets counted cash = expected cash, so a zero variance is not evidence of a real count.
 with shifts as (
 
-    select * from {{ ref('fct_shifts') }}
+    select
+        shift_id,
+        shift_code,
+        branch_sk,
+        branch_id,
+        employee_sk,
+        employee_id,
+        status,
+        opened_at,
+        date_sk,
+        business_date,
+        closed_at,
+        closed_date_sk,
+        closed_date,
+        opening_float_amount,
+        cash_movement_count,
+        float_in_amount,
+        sale_cash_in_amount,
+        other_in_amount,
+        cash_out_amount,
+        refund_out_amount,
+        other_out_amount,
+        total_cash_in_amount,
+        total_cash_out_amount,
+        expected_closing_cash_amount,
+        counted_closing_cash_amount,
+        cash_variance_amount,
+        is_closed,
+        has_counted_cash,
+        is_counted_equal_expected,
+        is_float_in_equal_opening_float
+    from {{ ref('fct_shifts') }}
 
 ),
 

@@ -4,7 +4,24 @@
 with movements as (
 
     select
-        *,
+        stock_movement_id,
+        branch_id,
+        stock_item_id,
+        inventory_lot_id,
+        movement_type,
+        quantity_delta,
+        uom_id,
+        unit_cost,
+        occurred_at,
+        source_type,
+        source_id,
+        idempotency_key,
+        created_by,
+        notes,
+        created_at,
+        updated_at,
+        is_deleted,
+        deleted_at,
         case
             when movement_type in ('PURCHASE_RECEIPT', 'PRODUCTION_OUTPUT', 'RETURN_IN', 'ADJUSTMENT_IN', 'TRANSFER_IN') then 1
             when movement_type in ('PRODUCTION_CONSUMPTION', 'SALE', 'WASTE', 'ADJUSTMENT_OUT', 'TRANSFER_OUT') then -1

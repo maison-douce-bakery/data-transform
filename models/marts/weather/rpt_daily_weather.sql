@@ -1,7 +1,24 @@
 -- One row per location and business date, from the hours present in fct_weather_hourly (hour_count can be below 24).
 with hourly as (
 
-    select * from {{ ref('fct_weather_hourly') }}
+    select
+        location_code,
+        observed_at,
+        date_sk,
+        business_date,
+        business_hour,
+        temperature_c,
+        apparent_temperature_c,
+        relative_humidity_pct,
+        precipitation_mm,
+        rain_mm,
+        weather_code,
+        weather_category,
+        is_raining,
+        cloud_cover_pct,
+        shortwave_radiation_wm2,
+        wind_speed_kmh
+    from {{ ref('fct_weather_hourly') }}
 
 ),
 

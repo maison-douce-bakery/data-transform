@@ -3,7 +3,21 @@
 -- The window is as declared: overlaps are flagged here and resolved in int_production__recipe_periods.
 with recipes as (
 
-    select * from {{ ref('stg_bakery__recipes') }}
+    select
+        recipe_id,
+        product_id,
+        recipe_version,
+        yield_quantity,
+        yield_uom_id,
+        effective_from,
+        effective_to,
+        instructions,
+        is_active,
+        created_at,
+        updated_at,
+        is_deleted,
+        deleted_at
+    from {{ ref('stg_bakery__recipes') }}
 
 ),
 

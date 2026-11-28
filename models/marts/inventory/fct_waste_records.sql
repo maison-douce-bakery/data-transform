@@ -3,7 +3,22 @@
 -- and value are different measures: do not equate them.
 with waste as (
 
-    select * from {{ ref('stg_bakery__waste_records') }}
+    select
+        waste_record_id,
+        branch_id,
+        stock_item_id,
+        inventory_lot_id,
+        quantity,
+        uom_id,
+        reason_code,
+        recorded_at,
+        recorded_by,
+        notes,
+        created_at,
+        updated_at,
+        is_deleted,
+        deleted_at
+    from {{ ref('stg_bakery__waste_records') }}
     where not is_deleted
 
 ),

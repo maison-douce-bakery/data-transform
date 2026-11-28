@@ -3,7 +3,40 @@
 -- the key list, so nothing is counted twice. Gross amounts stay original; refunds are separate columns.
 with sales as (
 
-    select * from {{ ref('fct_sales') }}
+    select
+        sale_id,
+        receipt_number,
+        branch_sk,
+        branch_id,
+        customer_sk,
+        customer_id,
+        employee_sk,
+        employee_id,
+        date_sk,
+        business_date,
+        sold_at,
+        opened_at,
+        completed_at,
+        channel,
+        sale_status,
+        is_completed,
+        is_sold,
+        line_count,
+        gross_amount,
+        discount_amount,
+        net_amount,
+        tax_amount,
+        total_amount,
+        payment_count,
+        failed_payment_count,
+        collected_amount,
+        pending_amount,
+        failed_amount,
+        payment_methods,
+        returned_line_count,
+        refund_amount,
+        net_after_refund_amount
+    from {{ ref('fct_sales') }}
     where is_sold
 
 ),

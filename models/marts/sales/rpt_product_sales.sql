@@ -3,7 +3,33 @@
 -- category are the current version (history is not tracked for these here).
 with items as (
 
-    select * from {{ ref('fct_sale_items') }}
+    select
+        sale_item_id,
+        sale_id,
+        branch_sk,
+        branch_id,
+        customer_sk,
+        customer_id,
+        product_sk,
+        product_id,
+        uom_sk,
+        uom_id,
+        date_sk,
+        business_date,
+        sold_at,
+        sale_status,
+        is_completed,
+        is_sold,
+        quantity,
+        unit_price,
+        gross_amount,
+        discount_amount,
+        net_amount,
+        returned_quantity,
+        net_quantity,
+        refund_amount,
+        net_after_refund_amount
+    from {{ ref('fct_sale_items') }}
     where is_sold
 
 ),

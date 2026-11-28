@@ -44,4 +44,13 @@ totals as (
 
 )
 
-select * from totals
+select
+    purchase_order_item_id,
+    receipt_line_count,
+    received_quantity_in_ordered_uom,
+    other_uom_receipt_line_count,
+    received_value,
+    unpriced_receipt_line_count,
+    first_received_at,
+    last_received_at
+from totals

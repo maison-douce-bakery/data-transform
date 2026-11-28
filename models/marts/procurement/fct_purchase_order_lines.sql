@@ -1,18 +1,54 @@
 with po_lines as (
 
-    select * from {{ ref('stg_bakery__purchase_order_items') }} where not is_deleted
+    select
+        purchase_order_item_id,
+        purchase_order_id,
+        stock_item_id,
+        ordered_quantity,
+        uom_id,
+        expected_unit_cost,
+        notes,
+        created_at,
+        updated_at,
+        is_deleted,
+        deleted_at
+    from {{ ref('stg_bakery__purchase_order_items') }} where not is_deleted
 
 ),
 
 purchase_orders as (
 
-    select * from {{ ref('stg_bakery__purchase_orders') }} where not is_deleted
+    select
+        purchase_order_id,
+        po_number,
+        supplier_id,
+        branch_id,
+        ordered_at,
+        expected_at,
+        status,
+        currency_code,
+        notes,
+        created_by,
+        created_at,
+        updated_at,
+        is_deleted,
+        deleted_at
+    from {{ ref('stg_bakery__purchase_orders') }} where not is_deleted
 
 ),
 
 receipts as (
 
-    select * from {{ ref('int_procurement__receipt_totals_by_po_line') }}
+    select
+        purchase_order_item_id,
+        receipt_line_count,
+        received_quantity_in_ordered_uom,
+        other_uom_receipt_line_count,
+        received_value,
+        unpriced_receipt_line_count,
+        first_received_at,
+        last_received_at
+    from {{ ref('int_procurement__receipt_totals_by_po_line') }}
 
 ),
 
@@ -99,4 +135,38 @@ final as (
 
 )
 
-select * from final
+select
+    purchase_order_item_id,
+    purchase_order_id,
+    po_number,
+    po_status,
+    currency_code,
+    supplier_sk,
+    supplier_id,
+    branch_sk,
+    branch_id,
+    stock_item_sk,
+    stock_item_id,
+    uom_sk,
+    uom_id,
+    date_sk,
+    ordered_at,
+    business_date,
+    expected_at,
+    expected_date,
+    expected_date_sk,
+    ordered_quantity,
+    expected_unit_cost,
+    expected_line_value,
+    is_expected_price_known,
+    receipt_line_count,
+    received_quantity_in_ordered_uom,
+    other_uom_receipt_line_count,
+    units_comparable,
+    received_value,
+    open_quantity,
+    over_received_quantity,
+    is_cancelled,
+    first_received_at,
+    last_received_at
+from final

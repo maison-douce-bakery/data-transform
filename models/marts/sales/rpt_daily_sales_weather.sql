@@ -3,7 +3,27 @@
 -- Days without a mapping or weather keep their sales and get null weather.
 with sales as (
 
-    select * from {{ ref('rpt_daily_sales') }}
+    select
+        branch_sk,
+        branch_id,
+        branch_name,
+        date_sk,
+        business_date,
+        order_count,
+        customer_order_count,
+        line_count,
+        gross_amount,
+        discount_amount,
+        net_amount,
+        tax_amount,
+        revenue_amount,
+        refund_amount_by_sale_date,
+        net_revenue_amount_by_sale_date,
+        return_line_count,
+        refund_amount_by_refund_date,
+        net_revenue_amount_by_refund_date,
+        average_order_value
+    from {{ ref('rpt_daily_sales') }}
 
 ),
 

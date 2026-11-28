@@ -2,14 +2,47 @@
 -- collected_amount is the payment amount when the money was received (CAPTURED or REFUNDED), else 0.
 with payments as (
 
-    select * from {{ ref('stg_bakery__payments') }}
+    select
+        payment_id,
+        sale_id,
+        payment_method,
+        amount,
+        currency_code,
+        status,
+        paid_at,
+        provider_reference,
+        notes,
+        created_at,
+        updated_at,
+        is_deleted,
+        deleted_at
+    from {{ ref('stg_bakery__payments') }}
     where not is_deleted
 
 ),
 
 receipts as (
 
-    select * from {{ ref('int_sales__receipts') }}
+    select
+        sale_id,
+        receipt_number,
+        branch_id,
+        customer_id,
+        cashier_id,
+        channel,
+        sale_status,
+        opened_at,
+        completed_at,
+        sold_at,
+        business_date,
+        is_completed,
+        is_sold,
+        gross_amount,
+        discount_amount,
+        net_amount,
+        tax_amount,
+        total_amount
+    from {{ ref('int_sales__receipts') }}
 
 ),
 

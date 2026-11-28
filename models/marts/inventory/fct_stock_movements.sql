@@ -3,7 +3,34 @@
 -- signed_quantity is signed (positive adds stock). Value is signed too and NULL when the cost is unknown.
 with movements as (
 
-    select * from {{ ref('int_inventory__movements_signed') }}
+    select
+        stock_movement_id,
+        branch_id,
+        stock_item_id,
+        inventory_lot_id,
+        movement_type,
+        signed_quantity,
+        uom_id,
+        occurred_at,
+        business_date,
+        source_type,
+        source_id,
+        created_by,
+        expected_sign,
+        is_sign_consistent,
+        item_type,
+        item_base_uom_id,
+        is_item_base_uom,
+        lot_code,
+        manufactured_date,
+        received_date,
+        expiry_date,
+        lot_matches_item,
+        movement_unit_cost,
+        lot_unit_cost,
+        valuation_unit_cost,
+        cost_basis
+    from {{ ref('int_inventory__movements_signed') }}
 
 )
 

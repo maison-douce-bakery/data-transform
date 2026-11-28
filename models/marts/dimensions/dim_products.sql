@@ -3,7 +3,28 @@
 with versions as (
 
     select
-        *,
+        product_id,
+        sku,
+        product_name,
+        category_id,
+        product_type,
+        sell_uom_id,
+        stock_item_id,
+        description,
+        ingredient_summary,
+        unit_price,
+        is_active,
+        available_from,
+        available_to,
+        product_created_at,
+        created_at,
+        updated_at,
+        is_deleted,
+        deleted_at,
+        scd_id,
+        snapshot_updated_at,
+        valid_from,
+        valid_to,
         {{ scd2_valid_from('product_id') }} as version_valid_from
     from {{ ref('snap_products') }}
 

@@ -1,12 +1,38 @@
 with shifts as (
 
-    select * from {{ ref('stg_bakery__shifts') }} where not is_deleted
+    select
+        shift_id,
+        branch_id,
+        employee_id,
+        shift_code,
+        opened_at,
+        closed_at,
+        opening_cash,
+        counted_cash,
+        status,
+        notes,
+        created_at,
+        updated_at,
+        is_deleted,
+        deleted_at
+    from {{ ref('stg_bakery__shifts') }} where not is_deleted
 
 ),
 
 cash as (
 
-    select * from {{ ref('int_finance__shift_cash') }}
+    select
+        shift_id,
+        movement_count,
+        float_in_amount,
+        sale_cash_in_amount,
+        other_in_amount,
+        cash_out_amount,
+        refund_out_amount,
+        other_out_amount,
+        total_cash_in_amount,
+        total_cash_out_amount
+    from {{ ref('int_finance__shift_cash') }}
 
 ),
 
@@ -83,4 +109,35 @@ final as (
 
 )
 
-select * from final
+select
+    shift_id,
+    shift_code,
+    branch_sk,
+    branch_id,
+    employee_sk,
+    employee_id,
+    status,
+    opened_at,
+    date_sk,
+    business_date,
+    closed_at,
+    closed_date_sk,
+    closed_date,
+    opening_float_amount,
+    cash_movement_count,
+    float_in_amount,
+    sale_cash_in_amount,
+    other_in_amount,
+    cash_out_amount,
+    refund_out_amount,
+    other_out_amount,
+    total_cash_in_amount,
+    total_cash_out_amount,
+    expected_closing_cash_amount,
+    counted_closing_cash_amount,
+    cash_variance_amount,
+    is_closed,
+    has_counted_cash,
+    is_counted_equal_expected,
+    is_float_in_equal_opening_float
+from final
