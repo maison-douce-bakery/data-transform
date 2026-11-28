@@ -109,10 +109,6 @@ models:
     description: >
       Cashier shifts with opening and counted cash. Soft-deleted rows are kept; downstream models must filter is_deleted.
       One row per source row, 1:1 with bakery.shifts.
-  - name: stg_bakery__simulation_runs
-    description: >
-      Run log of the operations simulator. It has no audit columns, so no is_deleted.
-      One row per source row, 1:1 with bakery.simulation_runs.
   - name: stg_bakery__stock_items
     description: >
       Stock items: ingredients, packaging and other inventory items. Soft-deleted rows are kept; downstream models must filter is_deleted.
