@@ -10,8 +10,8 @@ Run locally: `pip install -r requirements.txt`, set the `DBT_*` variables (`DBT_
 
 | Layer | Schema | Materialization | Content |
 |---|---|---|---|
-| staging | `staging` | view | 1:1 with each `bakery` table: renames and casts only, no filters, no history. `open_meteo` (schema `raw`, loaded by dlt) keeps only the latest revision of each hour |
-| intermediate | `intermediate` | view | building blocks, not exposed |
+| staging | `staging` | table | 1:1 with each `bakery` table: renames and casts only, no filters, no history. `open_meteo` (schema `raw`, loaded by dlt) keeps only the latest revision of each hour |
+| intermediate | `intermediate` | table | building blocks, not exposed |
 | marts | `marts` | table | `dim_*`, `fct_*`, `rpt_*`, `bridge_*` |
 | snapshots | `snapshots` | snapshot | SCD2 history for customers, products and employees |
 
