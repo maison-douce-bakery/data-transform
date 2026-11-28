@@ -32,7 +32,6 @@ sources:
       - name: sale_promotions
       - name: sales
       - name: shifts
-      - name: simulation_runs
       - name: stock_items
       - name: stock_movements
       - name: supplier_products
