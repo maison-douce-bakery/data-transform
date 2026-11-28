@@ -2,7 +2,20 @@
 -- Shared by fct_cash_movements and int_finance__shift_cash so the direction rule lives in one place.
 with movements as (
 
-    select * from {{ ref('stg_bakery__cash_movements') }} where not is_deleted
+    select
+        cash_movement_id,
+        shift_id,
+        movement_type,
+        amount,
+        occurred_at,
+        sale_id,
+        recorded_by,
+        description,
+        created_at,
+        updated_at,
+        is_deleted,
+        deleted_at
+    from {{ ref('stg_bakery__cash_movements') }} where not is_deleted
 
 ),
 

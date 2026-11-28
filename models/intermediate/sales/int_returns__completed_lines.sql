@@ -3,14 +3,39 @@
 -- soft-deleted drop out together with it.
 with returns as (
 
-    select * from {{ ref('stg_bakery__returns') }}
+    select
+        return_id,
+        return_number,
+        sale_id,
+        processed_by,
+        returned_at,
+        reason,
+        status,
+        refund_total,
+        created_at,
+        updated_at,
+        is_deleted,
+        deleted_at
+    from {{ ref('stg_bakery__returns') }}
     where not is_deleted and status = 'COMPLETED'
 
 ),
 
 return_items as (
 
-    select * from {{ ref('stg_bakery__return_items') }}
+    select
+        return_item_id,
+        return_id,
+        sale_item_id,
+        quantity,
+        restockable,
+        refund_amount,
+        notes,
+        created_at,
+        updated_at,
+        is_deleted,
+        deleted_at
+    from {{ ref('stg_bakery__return_items') }}
     where not is_deleted
 
 ),

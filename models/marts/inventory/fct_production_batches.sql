@@ -5,7 +5,23 @@
 with batches as (
 
     select
-        *,
+        production_batch_id,
+        batch_number,
+        branch_id,
+        product_id,
+        recipe_id,
+        planned_quantity,
+        produced_quantity,
+        uom_id,
+        status,
+        started_at,
+        completed_at,
+        produced_by,
+        notes,
+        created_at,
+        updated_at,
+        is_deleted,
+        deleted_at,
         coalesce(started_at, completed_at, created_at) as event_at
     from {{ ref('stg_bakery__production_batches') }}
     where not is_deleted
@@ -14,7 +30,15 @@ with batches as (
 
 costs as (
 
-    select * from {{ ref('int_production__batch_costs') }}
+    select
+        production_batch_id,
+        consumption_line_count,
+        unknown_cost_line_count,
+        has_unknown_cost,
+        known_material_cost,
+        material_cost,
+        unit_cost
+    from {{ ref('int_production__batch_costs') }}
 
 ),
 
@@ -95,4 +119,38 @@ final as (
 
 )
 
-select * from final
+select
+    production_batch_id,
+    batch_number,
+    branch_sk,
+    branch_id,
+    product_sk,
+    product_id,
+    recipe_sk,
+    recipe_id,
+    effective_recipe_sk,
+    effective_recipe_id,
+    uses_effective_recipe,
+    uom_sk,
+    uom_id,
+    employee_sk,
+    employee_id,
+    date_sk,
+    business_date,
+    status,
+    started_at,
+    completed_at,
+    duration_minutes,
+    planned_quantity,
+    actual_quantity,
+    output_quantity,
+    is_missing_actual,
+    is_attainment_comparable,
+    attainment_ratio,
+    consumption_line_count,
+    unknown_cost_line_count,
+    has_unknown_cost,
+    known_material_cost,
+    material_cost,
+    unit_cost
+from final

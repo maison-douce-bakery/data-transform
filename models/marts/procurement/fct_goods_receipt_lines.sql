@@ -1,12 +1,40 @@
 with receipt_lines as (
 
-    select * from {{ ref('stg_bakery__goods_receipt_items') }} where not is_deleted
+    select
+        goods_receipt_item_id,
+        goods_receipt_id,
+        purchase_order_item_id,
+        stock_item_id,
+        inventory_lot_id,
+        received_quantity,
+        uom_id,
+        actual_unit_cost,
+        notes,
+        created_at,
+        updated_at,
+        is_deleted,
+        deleted_at
+    from {{ ref('stg_bakery__goods_receipt_items') }} where not is_deleted
 
 ),
 
 receipts as (
 
-    select * from {{ ref('stg_bakery__goods_receipts') }} where not is_deleted
+    select
+        goods_receipt_id,
+        receipt_number,
+        purchase_order_id,
+        supplier_id,
+        branch_id,
+        received_at,
+        received_by,
+        supplier_invoice_number,
+        notes,
+        created_at,
+        updated_at,
+        is_deleted,
+        deleted_at
+    from {{ ref('stg_bakery__goods_receipts') }} where not is_deleted
 
 ),
 
@@ -104,4 +132,35 @@ final as (
 
 )
 
-select * from final
+select
+    goods_receipt_item_id,
+    goods_receipt_id,
+    receipt_number,
+    supplier_invoice_number,
+    supplier_sk,
+    supplier_id,
+    branch_sk,
+    branch_id,
+    received_by_employee_sk,
+    received_by_employee_id,
+    stock_item_sk,
+    stock_item_id,
+    uom_sk,
+    uom_id,
+    inventory_lot_id,
+    date_sk,
+    received_at,
+    business_date,
+    received_quantity,
+    actual_unit_cost,
+    actual_line_value,
+    is_actual_price_known,
+    purchase_order_id,
+    po_number,
+    purchase_order_item_id,
+    is_linked_to_po,
+    is_linked_to_po_line,
+    units_match_po_line,
+    expected_unit_cost,
+    unit_cost_variance_amount
+from final

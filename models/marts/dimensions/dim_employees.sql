@@ -3,7 +3,23 @@
 with versions as (
 
     select
-        *,
+        employee_id,
+        branch_id,
+        employee_code,
+        full_name,
+        role_name,
+        phone,
+        hired_on,
+        terminated_on,
+        is_active,
+        created_at,
+        updated_at,
+        is_deleted,
+        deleted_at,
+        scd_id,
+        snapshot_updated_at,
+        valid_from,
+        valid_to,
         {{ scd2_valid_from('employee_id') }} as version_valid_from
     from {{ ref('snap_employees') }}
 

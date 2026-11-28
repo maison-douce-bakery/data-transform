@@ -3,7 +3,24 @@
 with versions as (
 
     select
-        *,
+        customer_id,
+        customer_code,
+        full_name,
+        phone,
+        email,
+        date_of_birth,
+        joined_at,
+        marketing_consent,
+        is_active,
+        notes,
+        created_at,
+        updated_at,
+        is_deleted,
+        deleted_at,
+        scd_id,
+        snapshot_updated_at,
+        valid_from,
+        valid_to,
         {{ scd2_valid_from('customer_id') }} as version_valid_from
     from {{ ref('snap_customers') }}
 

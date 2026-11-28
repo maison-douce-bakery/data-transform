@@ -1,7 +1,27 @@
 -- Receipt grain. Soft-deleted sales are excluded here, so everything built on it is clean.
 with sales as (
 
-    select * from {{ ref('stg_bakery__sales') }}
+    select
+        sale_id,
+        receipt_number,
+        branch_id,
+        customer_id,
+        cashier_id,
+        channel,
+        status,
+        opened_at,
+        completed_at,
+        subtotal,
+        discount_total,
+        tax_total,
+        total_amount,
+        idempotency_key,
+        notes,
+        created_at,
+        updated_at,
+        is_deleted,
+        deleted_at
+    from {{ ref('stg_bakery__sales') }}
     where not is_deleted
 
 )

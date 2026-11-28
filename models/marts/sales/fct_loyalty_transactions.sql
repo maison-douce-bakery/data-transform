@@ -2,7 +2,15 @@
 -- Customer version is resolved as of the transaction time.
 with transactions as (
 
-    select * from {{ ref('int_loyalty__running_balance') }}
+    select
+        loyalty_transaction_id,
+        customer_id,
+        sale_id,
+        transaction_type,
+        points_delta,
+        occurred_at,
+        balance_after
+    from {{ ref('int_loyalty__running_balance') }}
 
 ),
 

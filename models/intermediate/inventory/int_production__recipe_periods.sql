@@ -67,7 +67,10 @@ chosen as (
 flagged as (
 
     select
-        *,
+        product_id,
+        segment_start,
+        segment_end,
+        recipe_id,
         case
             when lag(recipe_id) over w is not distinct from recipe_id
                 and lag(segment_end) over w = segment_start
@@ -82,7 +85,11 @@ flagged as (
 islands as (
 
     select
-        *,
+        product_id,
+        segment_start,
+        segment_end,
+        recipe_id,
+        starts_new_period,
         sum(starts_new_period) over (partition by product_id order by segment_start) as period_number
     from flagged
 

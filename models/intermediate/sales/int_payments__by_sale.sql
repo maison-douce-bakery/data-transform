@@ -3,7 +3,21 @@
 -- FAILED and PENDING are never collected. The refund ledger is the return lines, not the payment status.
 with payments as (
 
-    select * from {{ ref('stg_bakery__payments') }}
+    select
+        payment_id,
+        sale_id,
+        payment_method,
+        amount,
+        currency_code,
+        status,
+        paid_at,
+        provider_reference,
+        notes,
+        created_at,
+        updated_at,
+        is_deleted,
+        deleted_at
+    from {{ ref('stg_bakery__payments') }}
     where not is_deleted
 
 )

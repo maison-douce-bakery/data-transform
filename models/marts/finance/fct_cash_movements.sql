@@ -1,6 +1,18 @@
 with movements as (
 
-    select * from {{ ref('int_finance__cash_movements') }}
+    select
+        cash_movement_id,
+        shift_id,
+        branch_id,
+        movement_type,
+        direction,
+        amount,
+        signed_amount,
+        occurred_at,
+        sale_id,
+        recorded_by,
+        description
+    from {{ ref('int_finance__cash_movements') }}
 
 )
 

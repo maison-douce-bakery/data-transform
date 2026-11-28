@@ -2,7 +2,20 @@
 -- Order is occurred_at, then id. EARN +, REDEEM -, ADJUST +/-, EXPIRE - are already signed in points_delta.
 with transactions as (
 
-    select * from {{ ref('stg_bakery__loyalty_transactions') }}
+    select
+        loyalty_transaction_id,
+        customer_id,
+        sale_id,
+        transaction_type,
+        points_delta,
+        occurred_at,
+        idempotency_key,
+        notes,
+        created_at,
+        updated_at,
+        is_deleted,
+        deleted_at
+    from {{ ref('stg_bakery__loyalty_transactions') }}
     where not is_deleted
 
 )

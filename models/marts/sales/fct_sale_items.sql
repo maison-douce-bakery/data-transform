@@ -2,7 +2,28 @@
 -- per original line before joining, so amounts stay on the original-sale basis.
 with lines as (
 
-    select * from {{ ref('int_sales__lines_enriched') }}
+    select
+        sale_item_id,
+        sale_id,
+        receipt_number,
+        branch_id,
+        customer_id,
+        cashier_id,
+        channel,
+        sale_status,
+        is_completed,
+        is_sold,
+        sold_at,
+        business_date,
+        product_id,
+        uom_id,
+        product_name_snapshot,
+        quantity,
+        unit_price,
+        gross_amount,
+        discount_amount,
+        net_amount
+    from {{ ref('int_sales__lines_enriched') }}
 
 ),
 

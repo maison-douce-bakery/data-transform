@@ -2,7 +2,26 @@
 -- before joining, and the as-of dimension joins match at most one version, so no fan-out.
 with receipts as (
 
-    select * from {{ ref('int_sales__receipts') }}
+    select
+        sale_id,
+        receipt_number,
+        branch_id,
+        customer_id,
+        cashier_id,
+        channel,
+        sale_status,
+        opened_at,
+        completed_at,
+        sold_at,
+        business_date,
+        is_completed,
+        is_sold,
+        gross_amount,
+        discount_amount,
+        net_amount,
+        tax_amount,
+        total_amount
+    from {{ ref('int_sales__receipts') }}
 
 ),
 
@@ -16,7 +35,17 @@ line_counts as (
 
 payments as (
 
-    select * from {{ ref('int_payments__by_sale') }}
+    select
+        sale_id,
+        payment_count,
+        failed_payment_count,
+        collected_amount,
+        captured_amount,
+        refunded_payment_amount,
+        pending_amount,
+        failed_amount,
+        payment_methods
+    from {{ ref('int_payments__by_sale') }}
 
 ),
 

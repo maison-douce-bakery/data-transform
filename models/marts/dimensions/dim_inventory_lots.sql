@@ -2,7 +2,22 @@
 -- date, so expiry flags live in the reports, not here. Unknown unit cost stays NULL.
 with lots as (
 
-    select * from {{ ref('stg_bakery__inventory_lots') }}
+    select
+        inventory_lot_id,
+        stock_item_id,
+        lot_code,
+        supplier_lot_code,
+        goods_receipt_id,
+        manufactured_at,
+        received_at,
+        expires_at,
+        unit_cost,
+        notes,
+        created_at,
+        updated_at,
+        is_deleted,
+        deleted_at
+    from {{ ref('stg_bakery__inventory_lots') }}
 
 ),
 
